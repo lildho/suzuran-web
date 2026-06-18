@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}Pencarian Data{% endblock %}
+{% block topbar_title %}/ pencarian{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title"><span>//</span> Pencarian Data</div>
+    <div style="font-size:.78rem;color:var(--ink-muted)">Linear Search O(n) · Binary Search O(log n)</div>
+  </div>
+</div>
+
+<!-- Search Form -->
+<div class="card-dark mb-3">
+  <div class="row g-3 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label-dark">Keyword</label>
+      <input type="text" id="keyword" class="form-control-dark form-control"
+             placeholder="Masukkan kata kunci…">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label-dark">Algoritma</label>
+      <select id="algoritma" class="form-select-dark form-select form-control">
+        <option value="linear">Linear / Sequential Search — O(n)</option>
+        <option value="binary">Binary Search — O(log n)</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label-dark">Cari Berdasarkan</label>
+      <select id="field" class="form-select-dark form-select form-control">
+        <option value="nama">Nama</option>
+        <option value="nim">NIM</option>
+        <option value="prodi">Program Studi</option>
+        <option value="angkatan">Angkatan</option>
+        <option value="email">Email</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button onclick="doSearch()" class="btn-accent w-100" style="padding:.65rem">
+        <i class="bi bi-search me-1"></i> Cari
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Result Panel -->
+<div id="resultPanel" style="display:none">
+
+  <!-- Stats Bar -->
+  <div class="card-dark mb-3" style="background:var(--bg-surface)">
+    <div class="row g-0">
+      <div class="col-6 col-md-3" style="padding:.75rem 1rem;border-right:1px solid var(--border)">
+        <div class="form-label-dark" style="margin:0 0 .2rem">Algoritma</div>
+        <div id="s-algo" class="mono" style="color:var(--red);font-size:.9rem"></div>
+      </div>
+      <div class="col-6 col-md-3" style="padding:.75rem 1rem;border-right:1px solid var(--border)">
+        <div class="form-label-dark" style="margin:0 0 .2rem">Waktu Nyata</div>
+        <div id="s-time" class="mono" style="color:var(--red);font-size:.9rem"></div>
+      </div>
+      <div class="col-6 col-md-3" style="padding:.75rem 1rem;border-right:1px solid var(--border)">
+        <div class="form-label-dark" style="margin:0 0 .2rem">Langkah / Iterasi</div>
+        <div id="s-steps" class="mono" style="color:var(--warning);font-size:.9rem"></div>
+      </div>
+      <div class="col-6 col-md-3" style="padding:.75rem 1rem">
+        <div class="form-label-dark" style="margin:0 0 .2rem">Kompleksitas</div>
+        <div id="s-complexity" class="complexity-badge d-inline-block"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estimasi -->
+  <div id="estimasiBox" class="card-dark mb-3"
+       style="background:var(--red-light);border-color:var(--yellow-soft)">
+    <div class="form-label-dark">Estimasi Time Complexity</div>
+    <div id="s-estimasi" style="font-size:.85rem;color:var(--ink)"></div>
+  </div>
+
+  <!-- Hasil Tabel -->
+  <div class="card-dark">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+      <div id="s-count" style="font-size:.85rem;color:var(--ink-muted)"></div>
+      <div id="s-found-badge"></div>
+    </div>
+    <div class="table-responsive">
+      <table class="table-dark-custom">
+        <thead>
+          <tr>
+            <th>NIM</th><th>Nama</th><th>Prodi</th><th>Angkatan</th><th>IPK</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Error Box -->
+<div id="errorBox" style="display:none"
+     class="card-dark" style="background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.3)">
+  <span style="color:var(--danger)"><i class="bi bi-exclamation-triangle-fill me-2"></i></span>
+  <span id="errorMsg"></span>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function doSearch() {
+  const keyword   = document.getElementById('keyword').value.trim();
+  const algoritma = document.getElementById('algoritma').value;
+  const field     = document.getElementById('field').value;
+
+  if (!keyword) {
+    showError('Keyword tidak boleh kosong.');
+    return;
+  }
+
+  document.getElementById('resultPanel').style.display = 'none';
+  document.getElementById('errorBox').style.display    = 'none';
+
+  try {
+    const res = await fetch('/api/cari', {
+      method : 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body   : JSON.stringify({ keyword, algoritma, field })
+    });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      showError(data.error || 'Terjadi kesalahan server.');
+      return;
+    }
+
+    renderResult(data, keyword, algoritma, field);
+  } catch (e) {
+    showError('Gagal terhubung ke server: ' + e.message);
+  }
+}
+
+function renderResult(data, keyword, algoritma, field) {
+  // Stats
+  document.getElementById('s-algo').textContent      = algoritma === 'binary' ? 'Binary Search' : 'Linear Search';
+  document.getElementById('s-time').textContent      = `${data.durasi_ms} ms (${data.durasi_s} s)`;
+  document.getElementById('s-steps').textContent     = `${data.langkah} langkah`;
+  document.getElementById('s-complexity').textContent = data.complexity;
+
+  // Estimasi
+  const est = data.estimasi;
+  document.getElementById('s-estimasi').innerHTML = `
+    <span class="mono" style="color:var(--red)">${est.label}</span>
+    &nbsp;·&nbsp; ${est.keterangan}
+    &nbsp;·&nbsp; Estimasi waktu teoritis: <span class="mono" style="color:var(--red)">${est.estimasi_waktu_s} detik</span>
+    &nbsp;·&nbsp; ≈ <span class="mono" style="color:var(--warning)">${est.estimasi_ops} operasi</span>
+  `;
+
+  // Count
+  const found = data.hasil.length;
+  document.getElementById('s-count').textContent = `${found} hasil ditemukan dari ${data.jumlah_data} data`;
+  document.getElementById('s-found-badge').innerHTML = found > 0
+    ? `<span style="color:var(--red);font-family:var(--font-mono);font-size:.78rem">✓ DITEMUKAN</span>`
+    : `<span style="color:var(--danger);font-family:var(--font-mono);font-size:.78rem">✗ TIDAK DITEMUKAN</span>`;
+
+  // Table body
+  const tbody = document.getElementById('resultBody');
+  tbody.innerHTML = '';
+
+  if (found === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--ink-muted)">
+      <i class="bi bi-search" style="font-size:1.5rem;display:block;margin-bottom:.5rem"></i>
+      Tidak ada data yang cocok dengan "<strong>${keyword}</strong>"
+    </td></tr>`;
+  } else {
+    data.hasil.forEach(m => {
+      const ipkColor = m.ipk >= 3.5 ? 'var(--red)' : m.ipk >= 2.5 ? 'var(--gold)' : '#fbbf24';
+      const pct = (m.ipk / 4 * 100).toFixed(0);
+      tbody.innerHTML += `<tr>
+        <td><span class="badge-nim">${m.nim}</span></td>
+        <td><div style="font-weight:500">${m.nama}</div><div style="font-size:.75rem;color:var(--ink-muted)">${m.email}</div></td>
+        <td><span class="badge-prodi">${m.prodi}</span></td>
+        <td class="mono" style="font-size:.82rem">${m.angkatan}</td>
+        <td>
+          <span class="mono" style="color:${ipkColor}">${parseFloat(m.ipk).toFixed(2)}</span>
+          <div class="ipk-bar"><div class="ipk-fill" style="width:${pct}%"></div></div>
+        </td>
+      </tr>`;
+    });
+  }
+
+  document.getElementById('resultPanel').style.display = 'block';
+
+  // Flash notifikasi
+  showToast(found > 0 ? `✅ Ditemukan ${found} data dalam ${data.durasi_ms} ms!` : '⚠️ Data tidak ditemukan.', found > 0 ? 'success' : 'warning');
+}
+
+function showError(msg) {
+  document.getElementById('errorMsg').textContent = msg;
+  document.getElementById('errorBox').style.display = 'block';
+}
+
+function showToast(msg, type) {
+  const wrap = document.getElementById('toastWrap');
+  const el   = document.createElement('div');
+  el.className = `alert-toast ${type}`;
+  el.innerHTML = `
+    <span class="alert-toast-icon"><i class="bi bi-${type==='success'?'check-circle-fill':'exclamation-triangle-fill'}"></i></span>
+    <div style="flex:1">${msg}</div>
+    <button onclick="this.closest('.alert-toast').remove()" style="background:none;border:none;color:var(--ink-muted);cursor:pointer"><i class="bi bi-x"></i></button>
+  `;
+  wrap.appendChild(el);
+  setTimeout(() => el.style.opacity='0', 5000);
+  setTimeout(() => el.remove(), 5400);
+}
+
+// Enter key
+document.getElementById('keyword').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+</script>
+{% endblock %}

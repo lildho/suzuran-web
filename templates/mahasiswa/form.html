@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}{% if mode == 'edit' %}Edit{% else %}Tambah{% endif %} Mahasiswa{% endblock %}
+{% block topbar_title %}/ mahasiswa / {{ mode }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">
+      <span>//</span> {% if mode == 'edit' %}Edit{% else %}Tambah{% endif %} Mahasiswa
+    </div>
+  </div>
+  <a href="{{ url_for('mahasiswa_list') }}" class="btn-ghost">
+    <i class="bi bi-arrow-left me-1"></i> Kembali
+  </a>
+</div>
+
+<div class="card-dark" style="max-width:720px">
+  <form method="POST" novalidate>
+    <div class="row g-3">
+
+      <!-- NIM -->
+      <div class="col-md-6">
+        <label class="form-label-dark">NIM *</label>
+        <input type="text" name="nim" class="form-control-dark form-control"
+               placeholder="Contoh: 12345678"
+               value="{{ form_data.get('nim', '') }}"
+               {% if mode == 'edit' %}readonly{% endif %}>
+        {% if errors.nim %}
+        <div class="invalid-feedback-dark"><i class="bi bi-exclamation-circle me-1"></i>{{ errors.nim }}</div>
+        {% endif %}
+        <div style="font-size:.7rem;color:var(--ink-muted);margin-top:.3rem">8–12 digit angka</div>
+      </div>
+
+      <!-- Nama -->
+      <div class="col-md-6">
+        <label class="form-label-dark">Nama Lengkap *</label>
+        <input type="text" name="nama" class="form-control-dark form-control"
+               placeholder="Contoh: Budi Santoso"
+               value="{{ form_data.get('nama', '') }}">
+        {% if errors.nama %}
+        <div class="invalid-feedback-dark"><i class="bi bi-exclamation-circle me-1"></i>{{ errors.nama }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Email -->
+      <div class="col-md-6">
+        <label class="form-label-dark">Email *</label>
+        <input type="email" name="email" class="form-control-dark form-control"
+               placeholder="nama@email.com"
+               value="{{ form_data.get('email', '') }}">
+        {% if errors.email %}
+        <div class="invalid-feedback-dark"><i class="bi bi-exclamation-circle me-1"></i>{{ errors.email }}</div>
+        {% endif %}
+      </div>
+
+      <!-- No Telp -->
+      <div class="col-md-6">
+        <label class="form-label-dark">No. Telepon *</label>
+        <input type="text" name="no_telp" class="form-control-dark form-control"
+               placeholder="081234567890"
+               value="{{ form_data.get('no_telp', '') }}">
+        {% if errors.no_telp %}
+        <div class="invalid-feedback-dark"><i class="bi bi-exclamation-circle me-1"></i>{{ errors.no_telp }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Prodi -->
+      <div class="col-md-6">
+        <label class="form-label-dark">Program Studi *</label>
+        <select name="prodi" class="form-select-dark form-select form-control">
+          <option value="">-- Pilih Prodi --</option>
+          {% set prodi_list = ['Teknik Informatika','Sistem Informasi','Ilmu Komputer','Teknik Elektro',
+             'Manajemen Informatika','Teknik Industri','Matematika','Fisika','Ekonomi','Akuntansi'] %}
+          {% for p in prodi_list %}
+          <option value="{{ p }}" {% if form_data.get('prodi') == p %}selected{% endif %}>{{ p }}</option>
+          {% endfor %}
+        </select>
+        {% if errors.prodi %}
+        <div class="invalid-feedback-dark"><i class="bi bi-exclamation-circle me-1"></i>{{ errors.prodi }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Angkatan -->
+      <div class="col-md-3">
+        <label class="form-label-dark">Angkatan *</label>
+        <input type="number" name="angkatan" class="form-control-dark form-control"
+               placeholder="2022" min="2000" max="2030"
+               value="{{ form_data.get('angkatan', '') }}">
+        {% if errors.angkatan %}
+        <div class="invalid-feedback-dark"><i class="bi bi-exclamation-circle me-1"></i>{{ errors.angkatan }}</div>
+        {% endif %}
+      </div>
+
+      <!-- IPK -->
+      <div class="col-md-3">
+        <label class="form-label-dark">IPK *</label>
+        <input type="number" name="ipk" class="form-control-dark form-control"
+               placeholder="3.50" min="0" max="4" step="0.01"
+               value="{{ form_data.get('ipk', '') }}">
+        {% if errors.ipk %}
+        <div class="invalid-feedback-dark"><i class="bi bi-exclamation-circle me-1"></i>{{ errors.ipk }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Alamat -->
+      <div class="col-12">
+        <label class="form-label-dark">Alamat *</label>
+        <textarea name="alamat" class="form-control-dark form-control"
+                  rows="3" placeholder="Jl. Contoh No.1, Kota...">{{ form_data.get('alamat', '') }}</textarea>
+        {% if errors.alamat %}
+        <div class="invalid-feedback-dark"><i class="bi bi-exclamation-circle me-1"></i>{{ errors.alamat }}</div>
+        {% endif %}
+      </div>
+
+    </div>
+
+    {% if errors %}
+    <div style="margin-top:1rem;padding:.75rem 1rem;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:8px;color:var(--danger);font-size:.83rem">
+      <i class="bi bi-exclamation-triangle-fill me-1"></i>
+      Terdapat {{ errors|length }} kesalahan pada form. Periksa kembali input Anda.
+    </div>
+    {% endif %}
+
+    <div style="display:flex;gap:.75rem;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)">
+      <button type="submit" class="btn-accent">
+        <i class="bi bi-check-lg me-1"></i>
+        {% if mode == 'edit' %}Simpan Perubahan{% else %}Simpan Data{% endif %}
+      </button>
+      <a href="{{ url_for('mahasiswa_list') }}" class="btn-ghost">Batal</a>
+    </div>
+  </form>
+</div>
+
+<script>
+// Live IPK preview
+document.querySelector('input[name="ipk"]')?.addEventListener('input', function() {
+  const v = parseFloat(this.value);
+  if (!isNaN(v)) {
+    const color = v >= 3.5 ? 'var(--red)' : v >= 2.5 ? 'var(--gold)' : '#fbbf24';
+    this.style.borderColor = color;
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "nim": "241011450471",
+    "nama": "Tamao Serizawa",
+    "email": "serizawaa@gmail.com",
+    "prodi": "Teknik Industri",
+    "angkatan": "2000",
+    "ipk": 1.0,
+    "no_telp": "085959166896",
+    "alamat": "Shizuoka Shizuoka-shi Suruga-ku Toro 5-10-5",
+    "created_at": "2026-05-24 04:54:02",
+    "updated_at": "2026-05-24 04:54:02"
+  },
+  {
+    "id": 2,
+    "nim": "241011450472",
+    "nama": "Takiya Genji",
+    "email": "genji@gmail.com",
+    "prodi": "Teknik Industri",
+    "angkatan": "2000",
+    "ipk": 2.5,
+    "no_telp": "089661620004",
+    "alamat": "Suzuran Street 5-10-5",
+    "created_at": "2026-05-24 04:56:29",
+    "updated_at": "2026-05-24 04:56:29"
+  },
+  {
+    "id": 3,
+    "nim": "241011450473",
+    "nama": "EFAA MAULANA",
+    "email": "EFAAAA@gmail.com",
+    "prodi": "Teknik Informatika",
+    "angkatan": "2006",
+    "ipk": 3.8,
+    "no_telp": "089661620291",
+    "alamat": "PIK JAKARTAAA",
+    "created_at": "2026-06-12 04:56:29",
+    "updated_at": "2026-06-12 04:56:29"
+  },
+  {
+    "id": 4,
+    "nim": "241011450474",
+    "nama": "RASIKAA NURENDRA",
+    "email": "SIKAA@gmail.com",
+    "prodi": "Ilmu Hukum",
+    "angkatan": "2003",
+    "ipk": 3.9,
+    "no_telp": "089661620294",
+    "alamat": "Jakarta Street",
+    "created_at": "2026-06-15 03:56:29",
+    "updated_at": "2026-06-15 03:56:29"
+
+  },
+  {
+    "id": 5,
+    "nim": "241011450475",
+    "nama": "Renoo Mendrofa",
+    "email": "Renoo@gmail.com",
+    "prodi": "Ilmu Hukum",
+    "angkatan": "2002",
+    "ipk": 2.9,
+    "no_telp": "089661620224",
+    "alamat": "Kodiklat Street",
+    "created_at": "2026-06-16 02:56:29",
+    "updated_at": "2026-06-16 02:56:29"
+  },
+  {
+    "id": 6,
+    "nim": "241011450475",
+    "nama": "Sutan Simatupang",
+    "email": "Sutan@gmail.com",
+    "prodi": "Sastra Ingrris",
+    "angkatan": "2001",
+    "ipk": 2.8,
+    "no_telp": "089661620297",
+    "alamat": "Elmaja Street",
+    "created_at": "2026-05-17 02:36:29",
+    "updated_at": "2026-05-17 02:36:29"
+  }
+  
+]

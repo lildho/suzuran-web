@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Build Log{% endblock %}
+{% block topbar_title %}/ build log{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title"><span>//</span> Build Log — Riwayat Pencarian</div>
+    <div style="font-size:.78rem;color:var(--ink-muted)">Tambahkan komentar setelah pencarian</div>
+  </div>
+</div>
+
+{% if logs %}
+<div class="card-dark">
+  <div class="table-responsive">
+    <table class="table-dark-custom">
+      <thead>
+        <tr>
+          <th>Waktu</th>
+          <th>Keyword</th>
+          <th>Algoritma</th>
+          <th>Field</th>
+          <th>n</th>
+          <th>Hasil</th>
+          <th>Durasi</th>
+          <th>O()</th>
+          <th>Langkah</th>
+          <th>Komentar</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr id="log-row-{{ log.id }}">
+          <td class="mono" style="font-size:.72rem;color:var(--ink-muted);white-space:nowrap">{{ log.waktu }}</td>
+          <td>
+            <span style="background:var(--bg-surface);border:1px solid var(--border);padding:.2rem .5rem;border-radius:6px;
+                         font-family:var(--font-mono);font-size:.78rem">
+              "{{ log.keyword }}"
+            </span>
+          </td>
+          <td>
+            <span style="color:{% if log.algoritma == 'BINARY' %}var(--red){% else %}var(--red){% endif %};
+                         font-family:var(--font-mono);font-size:.78rem">
+              {{ log.algoritma }}
+            </span>
+          </td>
+          <td style="font-size:.8rem;color:var(--ink-muted)">{{ log.field }}</td>
+          <td class="mono" style="font-size:.8rem">{{ log.jumlah_data }}</td>
+          <td>
+            <span style="color:{% if log.hasil > 0 %}var(--red){% else %}var(--danger){% endif %};
+                         font-family:var(--font-mono);font-size:.85rem;font-weight:700">
+              {{ log.hasil }}
+            </span>
+          </td>
+          <td class="mono" style="font-size:.78rem;color:var(--red)">{{ log.durasi_ms }} ms</td>
+          <td><span class="complexity-badge">{{ log.complexity }}</span></td>
+          <td class="mono" style="font-size:.78rem;color:var(--warning)">{{ log.langkah }}</td>
+          <td style="min-width:180px">
+            <div class="komentar-view" id="kview-{{ log.id }}">
+              {% if log.komentar %}
+              <span style="font-size:.8rem;color:var(--ink-muted)">{{ log.komentar }}</span>
+              {% else %}
+              <span style="font-size:.78rem;color:rgba(100,116,139,.4);font-style:italic">— belum ada komentar</span>
+              {% endif %}
+              <button onclick="editKomentar({{ log.id }})"
+                      style="background:none;border:none;color:var(--ink-muted);cursor:pointer;font-size:.78rem;margin-left:.25rem">
+                <i class="bi bi-pencil-square"></i>
+              </button>
+            </div>
+            <div class="komentar-edit" id="kedit-{{ log.id }}" style="display:none">
+              <div style="display:flex;gap:.4rem">
+                <input type="text" id="kinput-{{ log.id }}"
+                       class="form-control-dark form-control"
+                       style="font-size:.78rem;padding:.3rem .5rem"
+                       placeholder="Tambah komentar…"
+                       value="{{ log.komentar or '' }}">
+                <button onclick="saveKomentar({{ log.id }})" class="btn-accent" style="padding:.3rem .6rem;font-size:.78rem">
+                  <i class="bi bi-check-lg"></i>
+                </button>
+                <button onclick="cancelKomentar({{ log.id }})" class="btn-ghost" style="padding:.3rem .6rem;font-size:.78rem">
+                  <i class="bi bi-x"></i>
+                </button>
+              </div>
+            </div>
+          </td>
+          <td>
+            <button onclick="hapusLog({{ log.id }})"
+                    class="btn-ghost" style="padding:.25rem .5rem;font-size:.78rem;color:var(--danger);border-color:rgba(248,113,113,.2)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card-dark" style="text-align:center;padding:3rem">
+  <i class="bi bi-terminal" style="font-size:2.5rem;color:var(--ink-muted);display:block;margin-bottom:.75rem"></i>
+  <p style="color:var(--ink-muted)">Belum ada riwayat pencarian.</p>
+  <a href="{{ url_for('pencarian') }}" style="color:var(--red)">Mulai pencarian →</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function editKomentar(id) {
+  document.getElementById(`kview-${id}`).style.display = 'none';
+  document.getElementById(`kedit-${id}`).style.display = 'block';
+  document.getElementById(`kinput-${id}`).focus();
+}
+
+function cancelKomentar(id) {
+  document.getElementById(`kview-${id}`).style.display = 'block';
+  document.getElementById(`kedit-${id}`).style.display = 'none';
+}
+
+async function saveKomentar(id) {
+  const komentar = document.getElementById(`kinput-${id}`).value.trim();
+  try {
+    const res  = await fetch('/api/log/komentar', {
+      method : 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body   : JSON.stringify({ log_id: id, komentar })
+    });
+    const data = await res.json();
+    if (data.success) {
+      location.reload();
+    } else {
+      alert('Gagal menyimpan: ' + (data.error || 'Error'));
+    }
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function hapusLog(id) {
+  if (!confirm('Hapus log ini?')) return;
+  try {
+    const res  = await fetch(`/api/log/hapus/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById(`log-row-${id}`)?.remove();
+    } else {
+      alert('Gagal menghapus: ' + (data.error || 'Error'));
+    }
+  } catch(e) { alert('Error: ' + e.message); }
+}
+</script>
+{% endblock %}

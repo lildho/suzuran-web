@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}SUZURAN{% endblock %} — Suzuran University</title>
+
+  <!-- Google Fonts: Inter (clean sans) + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-main    : #fbfaf5;   /* off-white, hint of warm */
+      --bg-card    : #ffffff;   /* pure white surface */
+      --bg-surface : #faf7ec;   /* subtle yellow-tinted surface */
+      --ink        : #1c1917;   /* near-black text */
+      --ink-muted  : #6b6862;   /* muted gray-brown */
+      --ink-faint  : #a8a29e;   /* faint gray */
+      --red        : #b45309;   /* deep amber accent (readable on white) */
+      --red-light  : #fef9c3;   /* pale yellow */
+      --red-mid    : #d97706;   /* amber-600 */
+      --gold       : #92660a;   /* dark gold (badge text) */
+      --gold-light : #fef9c3;   /* pale yellow */
+      --yellow     : #f5c518;   /* bright primary yellow */
+      --yellow-soft: #fde68a;   /* soft yellow */
+      --border     : #ece8dd;   /* light neutral border */
+      --border-dark: #ddd7c8;   /* slightly darker border */
+      --warning    : #b45309;
+      --danger     : #dc2626;
+      --radius     : 10px;      /* soft rounded corners */
+      --shadow-sm  : 0 1px 2px rgba(28,25,23,.05);
+      --shadow     : 0 1px 3px rgba(28,25,23,.06), 0 1px 2px rgba(28,25,23,.04);
+      --shadow-md  : 0 4px 14px rgba(28,25,23,.08);
+      --font-display: 'Inter', system-ui, sans-serif;
+      --font-body   : 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono   : 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-main);
+      color: var(--ink);
+      min-height: 100vh;
+      font-size: .95rem;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* ── Sidebar ─────────────────────────────────────────────── */
+    .sidebar {
+      width: 248px;
+      min-height: 100vh;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 100;
+      transition: transform .25s ease;
+    }
+
+    .sidebar-brand {
+      padding: 1.6rem 1.4rem 1.3rem;
+    }
+
+    .logo-text {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -.5px;
+      line-height: 1;
+    }
+
+    .logo-text span { color: var(--red-mid); }
+
+    .logo-sub {
+      font-size: 0.6rem;
+      color: var(--ink-faint);
+      margin-top: 8px;
+      font-family: var(--font-mono);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .logo-divider {
+      width: 36px;
+      height: 3px;
+      background: var(--yellow);
+      border-radius: 3px;
+      margin: 10px 0 6px;
+    }
+
+    .sidebar-nav { padding: .75rem .75rem; flex: 1; }
+
+    .nav-section-title {
+      font-size: 0.62rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      padding: .9rem .65rem .35rem;
+      font-family: var(--font-mono);
+      font-weight: 500;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .6rem .65rem;
+      margin-bottom: 2px;
+      color: var(--ink-muted);
+      text-decoration: none;
+      font-size: .875rem;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all .15s;
+    }
+
+    .sidebar-link:hover {
+      color: var(--ink);
+      background: var(--bg-surface);
+    }
+
+    .sidebar-link.active {
+      color: var(--ink);
+      background: var(--red-light);
+      font-weight: 600;
+    }
+
+    .sidebar-link.active i { color: var(--red-mid); }
+    .sidebar-link i { font-size: 1.05rem; min-width: 18px; color: var(--ink-faint); }
+
+    /* ── Main ────────────────────────────────────────────────── */
+    .main-wrap {
+      margin-left: 248px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .topbar {
+      background: rgba(251,250,245,.85);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: .75rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 99;
+    }
+
+    .topbar-title {
+      font-family: var(--font-mono);
+      font-size: .76rem;
+      color: var(--ink-faint);
+      letter-spacing: .5px;
+    }
+
+    .topbar-user {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      font-size: .875rem;
+      font-family: var(--font-body);
+    }
+
+    .avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--yellow);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem; font-weight: 700;
+      color: var(--ink);
+      font-family: var(--font-display);
+    }
+
+    .content { padding: 1.75rem; flex: 1; max-width: 1280px; width: 100%; }
+
+    /* ── Cards ───────────────────────────────────────────────── */
+    .card-dark {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      box-shadow: var(--shadow);
+    }
+
+    .card-stat {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-stat::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--yellow);
+    }
+
+    .card-stat:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 2.3rem;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: .7rem;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-top: 6px;
+      font-family: var(--font-mono);
+    }
+
+    /* ── Tables ──────────────────────────────────────────────── */
+    .table-dark-custom { border-collapse: collapse; width: 100%; }
+
+    .table-dark-custom thead th {
+      background: var(--bg-surface);
+      color: var(--ink-muted);
+      font-size: .66rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: .75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-weight: 500;
+      text-align: left;
+    }
+
+    .table-dark-custom thead th:first-child { border-top-left-radius: 8px; }
+    .table-dark-custom thead th:last-child  { border-top-right-radius: 8px; }
+
+    .table-dark-custom tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+
+    .table-dark-custom tbody tr:last-child { border-bottom: none; }
+    .table-dark-custom tbody tr:hover { background: var(--bg-surface); }
+
+    .table-dark-custom td {
+      padding: .8rem 1rem;
+      font-size: .9rem;
+      vertical-align: middle;
+      color: var(--ink);
+    }
+
+    /* ── Badges ──────────────────────────────────────────────── */
+    .badge-nim {
+      background: var(--bg-surface);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: .68rem;
+      padding: .25rem .6rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-dark);
+      letter-spacing: .5px;
+    }
+
+    .badge-prodi {
+      background: var(--red-light);
+      color: var(--gold);
+      font-size: .72rem;
+      font-weight: 500;
+      padding: .22rem .6rem;
+      border-radius: 6px;
+      border: 1px solid var(--yellow-soft);
+      font-family: var(--font-body);
+    }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
+    .btn-accent {
+      background: var(--yellow);
+      color: var(--ink);
+      border: 1px solid var(--yellow);
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: .875rem;
+      padding: .5rem 1.15rem;
+      transition: all .15s;
+      font-family: var(--font-body);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-accent:hover {
+      background: #ecb70a;
+      border-color: #ecb70a;
+      color: var(--ink);
+      box-shadow: 0 3px 10px rgba(245,197,24,.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-accent:active { transform: translateY(0); box-shadow: var(--shadow-sm); }
+
+    .btn-ghost {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dark);
+      color: var(--ink-muted);
+      border-radius: 8px;
+      font-size: .875rem;
+      font-weight: 500;
+      padding: .5rem 1rem;
+      transition: all .15s;
+      font-family: var(--font-body);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--ink-faint);
+      color: var(--ink);
+      background: var(--bg-surface);
+    }
+
+    /* ── Form Controls ───────────────────────────────────────── */
+    .form-control-dark, .form-select-dark {
+      background: var(--bg-card) !important;
+      border: 1px solid var(--border-dark) !important;
+      color: var(--ink) !important;
+      border-radius: 8px;
+      font-size: .9rem;
+      padding: .55rem .8rem;
+      font-family: var(--font-body);
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .form-control-dark:focus, .form-select-dark:focus {
+      border-color: var(--yellow) !important;
+      box-shadow: 0 0 0 3px rgba(245,197,24,.22) !important;
+      outline: none;
+    }
+
+    .form-control-dark::placeholder { color: var(--ink-faint); }
+
+    .form-label-dark {
+      font-size: .7rem;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: .45rem;
+      font-family: var(--font-mono);
+      font-weight: 500;
+      display: block;
+    }
+
+    .invalid-feedback-dark {
+      color: var(--danger);
+      font-size: .8rem;
+      margin-top: .3rem;
+      font-family: var(--font-body);
+    }
+
+    /* ── Alerts / Toast ──────────────────────────────────────── */
+    .alert-toast-wrap {
+      position: fixed;
+      top: 1rem; right: 1rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      max-width: 380px;
+    }
+
+    .alert-toast {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .9rem 1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      font-size: .875rem;
+      animation: slideIn .2s ease;
+      box-shadow: var(--shadow-md);
+      font-family: var(--font-body);
+    }
+
+    .alert-toast.success { border-left: 4px solid #16a34a; }
+    .alert-toast.danger  { border-left: 4px solid var(--danger); }
+    .alert-toast.warning { border-left: 4px solid var(--yellow); }
+    .alert-toast.info    { border-left: 4px solid #2563eb; }
+
+    .alert-toast-icon { font-size: 1.1rem; margin-top: .05rem; }
+    .alert-toast.success .alert-toast-icon { color: #16a34a; }
+    .alert-toast.danger  .alert-toast-icon { color: var(--danger); }
+    .alert-toast.warning .alert-toast-icon { color: var(--red-mid); }
+    .alert-toast.info    .alert-toast-icon { color: #2563eb; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0);    }
+    }
+
+    /* ── Misc ────────────────────────────────────────────────── */
+    .mono { font-family: var(--font-mono); }
+
+    .ipk-bar {
+      height: 4px;
+      background: var(--bg-surface);
+      border-radius: 3px;
+      margin-top: 5px;
+      overflow: hidden;
+    }
+
+    .ipk-fill {
+      height: 100%;
+      background: var(--yellow);
+      border-radius: 3px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.75rem;
+      padding-bottom: 1.1rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .page-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0;
+      width: 48px; height: 2px;
+      background: var(--yellow);
+    }
+
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -.5px;
+      line-height: 1.1;
+    }
+
+    .page-title span { color: var(--red-mid); }
+
+    .complexity-badge {
+      background: var(--red-light);
+      border: 1px solid var(--yellow-soft);
+      color: var(--gold);
+      font-family: var(--font-mono);
+      font-size: .72rem;
+      padding: .22rem .6rem;
+      border-radius: 6px;
+    }
+
+    /* ── Scrollbar ───────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 8px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); box-shadow: var(--shadow-md); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrap { margin-left: 0; }
+      .content { padding: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+{% if session.user_id %}
+<!-- ── Sidebar ───────────────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-text">SUZU<span>RAN</span></div>
+    <div class="logo-divider"></div>
+    <div class="logo-sub">University · Data System</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-title">Main Menu</div>
+    <a href="{{ url_for('dashboard') }}"     class="sidebar-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-grid-1x2"></i> Dashboard
+    </a>
+    <a href="{{ url_for('mahasiswa_list') }}" class="sidebar-link {% if 'mahasiswa' in request.endpoint %}active{% endif %}">
+      <i class="bi bi-people"></i> Data Mahasiswa
+    </a>
+
+    <div class="nav-section-title" style="margin-top:.5rem">Algoritma</div>
+    <a href="{{ url_for('pencarian') }}"     class="sidebar-link {% if request.endpoint == 'pencarian' %}active{% endif %}">
+      <i class="bi bi-search"></i> Pencarian
+    </a>
+    <a href="{{ url_for('sorting') }}"       class="sidebar-link {% if request.endpoint == 'sorting' %}active{% endif %}">
+      <i class="bi bi-sort-alpha-down"></i> Sorting
+    </a>
+
+    <div class="nav-section-title" style="margin-top:.5rem">Data</div>
+    <a href="{{ url_for('import_export') }}" class="sidebar-link {% if request.endpoint == 'import_export' %}active{% endif %}">
+      <i class="bi bi-arrow-left-right"></i> Import / Export
+    </a>
+    <a href="{{ url_for('search_log') }}"    class="sidebar-link {% if request.endpoint == 'search_log' %}active{% endif %}">
+      <i class="bi bi-terminal"></i> Build Log
+    </a>
+  </nav>
+
+  <div style="padding:1rem 1.4rem; border-top:1px solid var(--border)">
+    <a href="{{ url_for('logout') }}" class="sidebar-link" style="color:var(--danger);">
+      <i class="bi bi-box-arrow-left" style="color:var(--danger)"></i> Logout
+    </a>
+  </div>
+</aside>
+
+<!-- ── Main Wrap ─────────────────────────────────────────────────── -->
+<div class="main-wrap">
+  <header class="topbar">
+    <button class="btn-ghost d-md-none" onclick="document.getElementById('sidebar').classList.toggle('open')">
+      <i class="bi bi-list"></i>
+    </button>
+    <span class="topbar-title">{% block topbar_title %}{% endblock %}</span>
+    <div class="topbar-user">
+      <div class="avatar">{{ session.username[0]|upper }}</div>
+      <span style="font-size:.8rem;color:var(--ink-muted)">{{ session.username }}</span>
+    </div>
+  </header>
+
+  <main class="content">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+{% else %}
+  {% block auth_content %}{% endblock %}
+{% endif %}
+
+<!-- ── Toast Alerts ──────────────────────────────────────────────── -->
+<div class="alert-toast-wrap" id="toastWrap">
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+  <div class="alert-toast {{ category }}" id="toast-{{ loop.index }}">
+    <span class="alert-toast-icon">
+      {% if category == 'success' %}<i class="bi bi-check-circle-fill"></i>
+      {% elif category == 'danger' %}<i class="bi bi-x-circle-fill"></i>
+      {% elif category == 'warning' %}<i class="bi bi-exclamation-triangle-fill"></i>
+      {% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
+    </span>
+    <div style="flex:1;color:var(--ink)">{{ message }}</div>
+    <button onclick="this.closest('.alert-toast').remove()" style="background:none;border:none;color:var(--ink-muted);cursor:pointer;font-size:1rem;">
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
+  {% endfor %}
+{% endwith %}
+</div>
+
+<script>
+  document.querySelectorAll('.alert-toast').forEach(el => {
+    setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .4s'; }, 5000);
+    setTimeout(() => el.remove(), 5500);
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

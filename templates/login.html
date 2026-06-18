@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block auth_content %}
+<style>
+  .login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-main);
+    position: relative;
+    overflow: hidden;
+    padding: 1.5rem;
+  }
+
+  /* Soft yellow glow accents */
+  .login-page::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(245,197,24,.22), transparent 70%);
+    pointer-events: none;
+  }
+
+  .login-page::after {
+    content: '';
+    position: absolute;
+    bottom: -140px; left: -100px;
+    width: 360px; height: 360px;
+    background: radial-gradient(circle, rgba(245,197,24,.14), transparent 70%);
+    pointer-events: none;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 10px 40px rgba(28,25,23,.08);
+  }
+
+  .login-logo {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 0;
+  }
+
+  .login-logo span { color: var(--red-mid); }
+
+  .login-tagline {
+    font-size: .64rem;
+    color: var(--ink-faint);
+    font-family: var(--font-mono);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 1.75rem;
+    margin-top: 6px;
+  }
+
+  .login-divider {
+    width: 40px;
+    height: 3px;
+    background: var(--yellow);
+    border-radius: 3px;
+    margin: 12px 0 1.75rem;
+  }
+
+  .login-label {
+    font-size: .68rem;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    margin-bottom: .45rem;
+    display: block;
+  }
+
+  .login-input {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-dark);
+    color: var(--ink);
+    border-radius: 8px;
+    padding: .7rem .9rem;
+    font-size: .95rem;
+    transition: border-color .15s, box-shadow .15s;
+    font-family: var(--font-body);
+    margin-bottom: 1.1rem;
+  }
+
+  .login-input:focus {
+    outline: none;
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 3px rgba(245,197,24,.22);
+  }
+
+  .login-input::placeholder { color: var(--ink-faint); }
+
+  .login-btn {
+    width: 100%;
+    background: var(--yellow);
+    color: var(--ink);
+    border: 1px solid var(--yellow);
+    border-radius: 8px;
+    padding: .8rem;
+    font-weight: 700;
+    font-size: .9rem;
+    cursor: pointer;
+    transition: all .15s;
+    font-family: var(--font-body);
+    letter-spacing: .3px;
+    margin-top: .5rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .login-btn:hover {
+    background: #ecb70a;
+    border-color: #ecb70a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(245,197,24,.4);
+  }
+
+  .login-btn:active { transform: translateY(0); }
+
+  .login-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-left: 3px solid var(--danger);
+    border-radius: 8px;
+    padding: .75rem 1rem;
+    color: #b91c1c;
+    font-size: .82rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-family: var(--font-body);
+  }
+
+  .default-cred {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    font-size: .72rem;
+    color: var(--ink-faint);
+    text-align: center;
+    font-family: var(--font-mono);
+    line-height: 1.8;
+  }
+
+  .cred-val { color: var(--red); font-weight: 700; }
+</style>
+
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">SUZU<span>RAN</span></div>
+    <div class="login-tagline">University · Student Data System</div>
+    <div class="login-divider"></div>
+
+    {% if error %}
+    <div class="login-error">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('login') }}" novalidate>
+      <label class="login-label" for="username">Username</label>
+      <input
+        class="login-input"
+        type="text"
+        id="username"
+        name="username"
+        placeholder="masukkan username..."
+        autocomplete="username"
+        value="{{ request.form.get('username', '') }}"
+        required
+      />
+
+      <label class="login-label" for="password">Password</label>
+      <input
+        class="login-input"
+        type="password"
+        id="password"
+        name="password"
+        placeholder="masukkan password..."
+        autocomplete="current-password"
+        required
+      />
+
+      <button type="submit" class="login-btn">
+        <i class="bi bi-box-arrow-in-right me-1"></i> Masuk
+      </button>
+    </form>
+
+    <div class="default-cred">
+      Default login &nbsp;·&nbsp;
+      <span class="cred-val">admin</span> / <span class="cred-val">admin123</span>
+    </div>
+  </div>
+</div>
+{% endblock %}

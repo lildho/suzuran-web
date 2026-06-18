@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Data Mahasiswa{% endblock %}
+{% block topbar_title %}/ mahasiswa / list{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title"><span>//</span> Data Mahasiswa</div>
+    <div style="font-size:.78rem;color:var(--ink-muted)">Total: {{ total }} mahasiswa</div>
+  </div>
+  <a href="{{ url_for('mahasiswa_tambah') }}" class="btn-accent">
+    <i class="bi bi-plus-lg me-1"></i> Tambah
+  </a>
+</div>
+
+<div class="card-dark">
+  <div class="table-responsive">
+    <table class="table-dark-custom">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>NIM</th>
+          <th>Nama</th>
+          <th>Program Studi</th>
+          <th>Angkatan</th>
+          <th>IPK</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if mahasiswa %}
+          {% for m in mahasiswa %}
+          <tr>
+            <td class="mono" style="color:var(--ink-muted);font-size:.78rem">
+              {{ (page-1)*per_page + loop.index }}
+            </td>
+            <td><span class="badge-nim">{{ m.nim }}</span></td>
+            <td>
+              <div style="font-weight:500">{{ m.nama }}</div>
+              <div style="font-size:.75rem;color:var(--ink-muted)">{{ m.email }}</div>
+            </td>
+            <td><span class="badge-prodi">{{ m.prodi }}</span></td>
+            <td class="mono" style="font-size:.82rem">{{ m.angkatan }}</td>
+            <td>
+              <span class="mono" style="color:{% if m.ipk >= 3.5 %}var(--red){% elif m.ipk >= 2.5 %}var(--red){% else %}var(--warning){% endif %}">
+                {{ "%.2f"|format(m.ipk) }}
+              </span>
+              <div class="ipk-bar"><div class="ipk-fill" style="width:{{ (m.ipk/4*100)|round|int }}%"></div></div>
+            </td>
+            <td>
+              <div style="display:flex;gap:.4rem">
+                <a href="{{ url_for('mahasiswa_detail', id=m.id) }}"
+                   class="btn-ghost" style="padding:.3rem .6rem;font-size:.8rem" title="Detail">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a href="{{ url_for('mahasiswa_email', id=m.id) }}"
+                   class="btn-ghost" style="padding:.3rem .6rem;font-size:.8rem" title="Kirim Email">
+                  <i class="bi bi-envelope"></i>
+                </a>
+                <a href="{{ url_for('mahasiswa_edit', id=m.id) }}"
+                   class="btn-ghost" style="padding:.3rem .6rem;font-size:.8rem" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <form method="POST" action="{{ url_for('mahasiswa_hapus', id=m.id) }}"
+                      onsubmit="return confirm('Hapus data {{ m.nama }}?')">
+                  <button type="submit" class="btn-ghost"
+                          style="padding:.3rem .6rem;font-size:.8rem;color:var(--danger);border-color:rgba(248,113,113,.3)" title="Hapus">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="7" style="text-align:center;padding:2rem;color:var(--ink-muted)">
+              <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:.5rem"></i>
+              Belum ada data mahasiswa.
+              <a href="{{ url_for('mahasiswa_tambah') }}" style="color:var(--red);display:block;margin-top:.5rem">Tambah sekarang →</a>
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if total_pages > 1 %}
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border)">
+    <span style="font-size:.78rem;color:var(--ink-muted)">
+      Halaman {{ page }} dari {{ total_pages }}
+    </span>
+    <div style="display:flex;gap:.4rem">
+      {% if page > 1 %}
+      <a href="{{ url_for('mahasiswa_list', page=page-1) }}" class="btn-ghost" style="padding:.35rem .7rem;font-size:.82rem">
+        <i class="bi bi-chevron-left"></i>
+      </a>
+      {% endif %}
+      {% for p in range(1, total_pages+1) %}
+        {% if p == page %}
+        <span class="btn-accent" style="padding:.35rem .7rem;font-size:.82rem">{{ p }}</span>
+        {% elif p <= 3 or p > total_pages-2 or (p >= page-1 and p <= page+1) %}
+        <a href="{{ url_for('mahasiswa_list', page=p) }}" class="btn-ghost" style="padding:.35rem .7rem;font-size:.82rem">{{ p }}</a>
+        {% elif p == 4 or p == total_pages-2 %}
+        <span style="padding:.35rem .3rem;color:var(--ink-muted)">…</span>
+        {% endif %}
+      {% endfor %}
+      {% if page < total_pages %}
+      <a href="{{ url_for('mahasiswa_list', page=page+1) }}" class="btn-ghost" style="padding:.35rem .7rem;font-size:.82rem">
+        <i class="bi bi-chevron-right"></i>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

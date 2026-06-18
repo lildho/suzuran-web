@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block topbar_title %}/ dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title"><span>//</span> Dashboard</div>
+    <div style="font-size:.8rem;color:var(--ink-muted);margin-top:.3rem;font-family:var(--font-mono);letter-spacing:1px;">Ringkasan data sistem</div>
+  </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card-stat">
+      <div class="stat-value">{{ stats.total }}</div>
+      <div class="stat-label">Total Mahasiswa</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card-stat">
+      <div class="stat-value" style="color:var(--red)">{{ stats.ipk_avg }}</div>
+      <div class="stat-label">Rata-rata IPK</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card-stat">
+      <div class="stat-value" style="color:var(--gold)">{{ stats.prodi|length }}</div>
+      <div class="stat-label">Program Studi</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card-stat">
+      <div class="stat-value" style="color:var(--ink-muted)">{{ stats.total_log }}</div>
+      <div class="stat-label">Riwayat Pencarian</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- Top Prodi -->
+  <div class="col-md-6">
+    <div class="card-dark h-100">
+      <div style="font-family:var(--font-mono);font-size:.68rem;color:var(--ink-muted);margin-bottom:1rem;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:.75rem;">
+        Top Program Studi
+      </div>
+      {% if stats.prodi %}
+        {% for p in stats.prodi %}
+        <div style="margin-bottom:.9rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;">
+            <span style="font-size:.9rem;font-family:var(--font-body)">{{ p.prodi }}</span>
+            <span style="font-family:var(--font-mono);color:var(--red);font-size:.85rem;font-weight:600">{{ p.c }}</span>
+          </div>
+          <div class="ipk-bar">
+            <div class="ipk-fill" style="width:{{ (p.c / stats.total * 100)|round|int if stats.total > 0 else 0 }}%"></div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="color:var(--ink-muted);font-size:.875rem">Belum ada data mahasiswa.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="col-md-6">
+    <div class="card-dark h-100">
+      <div style="font-family:var(--font-mono);font-size:.68rem;color:var(--ink-muted);margin-bottom:1rem;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:.75rem;">
+        Aksi Cepat
+      </div>
+      <div class="d-grid gap-2">
+        <a href="{{ url_for('mahasiswa_tambah') }}" class="btn-accent text-center py-3" style="text-decoration:none;display:block;border-radius:2px;">
+          <i class="bi bi-person-plus me-2"></i> Tambah Mahasiswa
+        </a>
+        <a href="{{ url_for('pencarian') }}" class="btn-ghost text-center py-3" style="text-decoration:none;display:block;border-radius:2px;">
+          <i class="bi bi-search me-2"></i> Cari Data
+        </a>
+        <a href="{{ url_for('import_export') }}" class="btn-ghost text-center py-2" style="text-decoration:none;display:block;border-radius:2px;">
+          <i class="bi bi-upload me-2"></i> Import / Export
+        </a>
+        <a href="{{ url_for('search_log') }}" class="btn-ghost text-center py-2" style="text-decoration:none;display:block;border-radius:2px;">
+          <i class="bi bi-terminal me-2"></i> Build Log
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

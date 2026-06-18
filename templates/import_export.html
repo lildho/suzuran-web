@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Import / Export{% endblock %}
+{% block topbar_title %}/ import-export{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-title"><span>//</span> Import / Export Data</div>
+</div>
+
+<div class="row g-3">
+  <!-- Export -->
+  <div class="col-md-6">
+    <div class="card-dark h-100">
+      <div style="font-family:var(--font-mono);font-size:.8rem;color:var(--ink-muted);margin-bottom:1rem;letter-spacing:1px">
+        <i class="bi bi-download me-1"></i> EXPORT DATA
+      </div>
+      <p style="font-size:.875rem;color:var(--ink-muted);margin-bottom:1.25rem">
+        Unduh seluruh data mahasiswa dalam format pilihan.
+      </p>
+      <div class="d-grid gap-2">
+        <a href="{{ url_for('export_csv') }}" class="btn-accent text-center py-3" style="text-decoration:none;display:block;border-radius:10px">
+          <i class="bi bi-filetype-csv me-2"></i> Export sebagai CSV
+        </a>
+        <a href="{{ url_for('export_json') }}" class="btn-ghost text-center py-3" style="text-decoration:none;display:block;border-radius:10px">
+          <i class="bi bi-filetype-json me-2"></i> Export sebagai JSON
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import CSV -->
+  <div class="col-md-6">
+    <div class="card-dark h-100">
+      <div style="font-family:var(--font-mono);font-size:.8rem;color:var(--ink-muted);margin-bottom:1rem;letter-spacing:1px">
+        <i class="bi bi-upload me-1"></i> IMPORT CSV
+      </div>
+      <p style="font-size:.875rem;color:var(--ink-muted);margin-bottom:.5rem">
+        Upload file <code style="color:var(--red)">.csv</code> dengan kolom:
+        <span class="mono" style="font-size:.75rem;color:var(--red)">nim, nama, email, prodi, angkatan, ipk, no_telp, alamat</span>
+      </p>
+      <form method="POST" action="{{ url_for('import_csv') }}" enctype="multipart/form-data">
+        <div style="border:2px dashed var(--border);border-radius:10px;padding:1.25rem;text-align:center;margin:1rem 0;cursor:pointer"
+             onclick="document.getElementById('csvFile').click()">
+          <i class="bi bi-file-earmark-spreadsheet" style="font-size:2rem;color:var(--ink-muted);display:block;margin-bottom:.4rem"></i>
+          <div style="font-size:.82rem;color:var(--ink-muted)" id="csvLabel">Klik untuk pilih file CSV</div>
+        </div>
+        <input type="file" id="csvFile" name="file" accept=".csv" style="display:none"
+               onchange="document.getElementById('csvLabel').textContent = this.files[0]?.name || 'Klik untuk pilih file CSV'">
+        <button type="submit" class="btn-accent w-100">
+          <i class="bi bi-upload me-1"></i> Upload CSV
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Import JSON -->
+  <div class="col-md-6">
+    <div class="card-dark">
+      <div style="font-family:var(--font-mono);font-size:.8rem;color:var(--ink-muted);margin-bottom:1rem;letter-spacing:1px">
+        <i class="bi bi-upload me-1"></i> IMPORT JSON
+      </div>
+      <p style="font-size:.875rem;color:var(--ink-muted);margin-bottom:.5rem">
+        Upload file <code style="color:var(--red)">.json</code> berupa array objek mahasiswa.
+      </p>
+      <form method="POST" action="{{ url_for('import_json') }}" enctype="multipart/form-data">
+        <div style="border:2px dashed var(--border);border-radius:10px;padding:1.25rem;text-align:center;margin:1rem 0;cursor:pointer"
+             onclick="document.getElementById('jsonFile').click()">
+          <i class="bi bi-file-earmark-code" style="font-size:2rem;color:var(--ink-muted);display:block;margin-bottom:.4rem"></i>
+          <div style="font-size:.82rem;color:var(--ink-muted)" id="jsonLabel">Klik untuk pilih file JSON</div>
+        </div>
+        <input type="file" id="jsonFile" name="file" accept=".json" style="display:none"
+               onchange="document.getElementById('jsonLabel').textContent = this.files[0]?.name || 'Klik untuk pilih file JSON'">
+        <button type="submit" class="btn-accent w-100">
+          <i class="bi bi-upload me-1"></i> Upload JSON
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Format Guide -->
+  <div class="col-md-6">
+    <div class="card-dark" style="background:var(--bg-surface)">
+      <div style="font-family:var(--font-mono);font-size:.8rem;color:var(--ink-muted);margin-bottom:1rem;letter-spacing:1px">
+        <i class="bi bi-info-circle me-1"></i> PANDUAN FORMAT
+      </div>
+      <div style="font-size:.82rem;color:var(--ink-muted);line-height:1.9">
+        <div><strong style="color:var(--red)">CSV:</strong> baris pertama = header, separator koma</div>
+        <div><strong style="color:var(--red)">JSON:</strong> array of object</div>
+        <div><strong style="color:var(--red)">nim:</strong> 8–12 digit angka</div>
+        <div><strong style="color:var(--red)">email:</strong> format valid (user@domain.com)</div>
+        <div><strong style="color:var(--red)">ipk:</strong> angka desimal 0.00 – 4.00</div>
+        <div><strong style="color:var(--red)">angkatan:</strong> tahun 4 digit (2000–sekarang)</div>
+        <div><strong style="color:var(--red)">no_telp:</strong> awali dengan 08 / +62 / 62</div>
+      </div>
+      <div style="margin-top:1rem;padding:.75rem;background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;font-family:var(--font-mono);font-size:.72rem;color:var(--ink-muted);line-height:1.7">
+        <span style="color:var(--red)">// Contoh JSON</span><br>
+        [{"{"}"nim":"12345678","nama":"Budi","email":"budi@gmail.com",<br>
+        &nbsp;"prodi":"Teknik Informatika","angkatan":"2022",<br>
+        &nbsp;"ipk":"3.75","no_telp":"081234567890","alamat":"Jakarta"{"}"}]
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

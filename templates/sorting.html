@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Sorting Data{% endblock %}
+{% block topbar_title %}/ sorting{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title"><span>//</span> Sorting Data</div>
+    <div style="font-size:.78rem;color:var(--ink-muted)">Bubble Sort · Selection Sort — O(n²)</div>
+  </div>
+</div>
+
+<div class="card-dark mb-3">
+  <div class="row g-3 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label-dark">Algoritma Sort</label>
+      <select id="algoritma" class="form-select-dark form-select form-control">
+        <option value="bubble">Bubble Sort — O(n²)</option>
+        <option value="selection">Selection Sort — O(n²)</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label-dark">Urut Berdasarkan</label>
+      <select id="field" class="form-select-dark form-select form-control">
+        <option value="nama">Nama</option>
+        <option value="nim">NIM</option>
+        <option value="ipk">IPK</option>
+        <option value="angkatan">Angkatan</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label-dark">Urutan</label>
+      <select id="order" class="form-select-dark form-select form-control">
+        <option value="asc">A → Z / Kecil → Besar</option>
+        <option value="desc">Z → A / Besar → Kecil</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <button onclick="doSort()" class="btn-accent w-100" style="padding:.65rem">
+        <i class="bi bi-sort-alpha-down me-1"></i> Urutkan
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div id="statsBar" style="display:none" class="card-dark mb-3" style="background:var(--bg-surface)">
+  <div class="row g-0">
+    <div class="col-6 col-md-3" style="padding:.75rem 1rem;border-right:1px solid var(--border)">
+      <div class="form-label-dark" style="margin:0 0 .2rem">Algoritma</div>
+      <div id="s-algo" class="mono" style="color:var(--red);font-size:.9rem"></div>
+    </div>
+    <div class="col-6 col-md-3" style="padding:.75rem 1rem;border-right:1px solid var(--border)">
+      <div class="form-label-dark" style="margin:0 0 .2rem">Waktu Nyata</div>
+      <div id="s-time" class="mono" style="color:var(--red);font-size:.9rem"></div>
+    </div>
+    <div class="col-6 col-md-3" style="padding:.75rem 1rem;border-right:1px solid var(--border)">
+      <div class="form-label-dark" style="margin:0 0 .2rem">Perbandingan</div>
+      <div id="s-steps" class="mono" style="color:var(--warning);font-size:.9rem"></div>
+    </div>
+    <div class="col-6 col-md-3" style="padding:.75rem 1rem">
+      <div class="form-label-dark" style="margin:0 0 .2rem">Kompleksitas</div>
+      <span id="s-complexity" class="complexity-badge"></span>
+    </div>
+  </div>
+</div>
+
+<div id="estimasiBox" style="display:none" class="card-dark mb-3" style="background:var(--red-light)">
+  <div class="form-label-dark">Estimasi Time Complexity</div>
+  <div id="s-estimasi" style="font-size:.85rem"></div>
+</div>
+
+<div id="resultPanel" style="display:none" class="card-dark">
+  <div class="table-responsive">
+    <table class="table-dark-custom">
+      <thead>
+        <tr><th>#</th><th>NIM</th><th>Nama</th><th>Prodi</th><th>Angkatan</th><th>IPK</th></tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function doSort() {
+  const algoritma = document.getElementById('algoritma').value;
+  const field     = document.getElementById('field').value;
+  const order     = document.getElementById('order').value;
+
+  try {
+    const res = await fetch('/api/sort', {
+      method : 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body   : JSON.stringify({ algoritma, field, order })
+    });
+    const data = await res.json();
+
+    if (!res.ok || data.error) { alert('Error: ' + data.error); return; }
+
+    document.getElementById('s-algo').textContent      = algoritma === 'bubble' ? 'Bubble Sort' : 'Selection Sort';
+    document.getElementById('s-time').textContent      = `${data.durasi_ms} ms`;
+    document.getElementById('s-steps').textContent     = `${data.langkah} perbandingan`;
+    document.getElementById('s-complexity').textContent = data.complexity;
+
+    const est = data.estimasi;
+    document.getElementById('s-estimasi').innerHTML = `
+      <span class="mono" style="color:var(--red)">${est.label}</span>
+      &nbsp;·&nbsp; n=${data.n} → ≈ <span class="mono" style="color:var(--warning)">${est.estimasi_ops.toLocaleString()} operasi</span>
+      &nbsp;·&nbsp; Estimasi teoritis: <span class="mono" style="color:var(--red)">${est.estimasi_waktu_s} s</span>
+      <br><small style="color:var(--ink-muted)">${est.keterangan}</small>
+    `;
+
+    const tbody = document.getElementById('resultBody');
+    tbody.innerHTML = '';
+    data.hasil.forEach((m, i) => {
+      const ipkColor = m.ipk >= 3.5 ? 'var(--red)' : m.ipk >= 2.5 ? 'var(--gold)' : '#fbbf24';
+      tbody.innerHTML += `<tr>
+        <td class="mono" style="color:var(--ink-muted);font-size:.78rem">${i+1}</td>
+        <td><span class="badge-nim">${m.nim}</span></td>
+        <td>${m.nama}</td>
+        <td><span class="badge-prodi">${m.prodi}</span></td>
+        <td class="mono" style="font-size:.82rem">${m.angkatan}</td>
+        <td><span class="mono" style="color:${ipkColor}">${parseFloat(m.ipk).toFixed(2)}</span></td>
+      </tr>`;
+    });
+
+    document.getElementById('statsBar').style.display    = 'block';
+    document.getElementById('estimasiBox').style.display = 'block';
+    document.getElementById('resultPanel').style.display = 'block';
+
+    // Toast
+    const wrap = document.getElementById('toastWrap');
+    const el   = document.createElement('div');
+    el.className = 'alert-toast success';
+    el.innerHTML = `<span class="alert-toast-icon"><i class="bi bi-check-circle-fill"></i></span>
+      <div style="flex:1">✅ Sorting selesai dalam ${data.durasi_ms} ms (${data.langkah} perbandingan)</div>
+      <button onclick="this.closest('.alert-toast').remove()" style="background:none;border:none;color:var(--ink-muted);cursor:pointer"><i class="bi bi-x"></i></button>`;
+    wrap.appendChild(el);
+    setTimeout(() => el.style.opacity='0', 5000);
+    setTimeout(() => el.remove(), 5400);
+
+  } catch(e) { alert('Error: ' + e.message); }
+}
+</script>
+{% endblock %}

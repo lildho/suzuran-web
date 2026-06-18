@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Kirim Email{% endblock %}
+{% block topbar_title %}/ mahasiswa / email{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-title"><span>//</span> Kirim Email</div>
+  <a href="{{ url_for('mahasiswa_detail', id=mhs.id) }}" class="btn-ghost">
+    <i class="bi bi-arrow-left me-1"></i> Kembali
+  </a>
+</div>
+
+<div class="card-dark" style="max-width:680px">
+
+  {% if not configured %}
+  <div class="alert-toast warning" style="position:static;margin-bottom:1.25rem;box-shadow:none">
+    <span class="alert-toast-icon"><i class="bi bi-exclamation-triangle-fill"></i></span>
+    <div style="flex:1;color:var(--ink)">
+      Gmail belum dikonfigurasi. Set environment variable
+      <span class="mono">GMAIL_USER</span> dan <span class="mono">GMAIL_APP_PASSWORD</span>
+      (App Password dari Google) lalu jalankan ulang aplikasi.
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Penerima -->
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border)">
+    <div style="width:48px;height:48px;border-radius:50%;background:var(--red);
+                display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:#faf7f3;flex-shrink:0">
+      {{ mhs.nama[0]|upper }}
+    </div>
+    <div>
+      <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--ink-muted);font-family:var(--font-mono)">
+        Kepada
+      </div>
+      <div style="font-weight:600">{{ mhs.nama }}</div>
+      <div class="mono" style="font-size:.82rem;color:var(--ink-muted)">
+        <i class="bi bi-envelope me-1"></i>{{ mhs.email }}
+      </div>
+    </div>
+  </div>
+
+  <form method="POST" action="{{ url_for('mahasiswa_email', id=mhs.id) }}">
+    <div style="margin-bottom:1.25rem">
+      <label class="form-label-dark">Subjek</label>
+      <input type="text" name="subject" class="form-control form-control-dark"
+             placeholder="Subjek email" value="{{ form_data.subject }}" required>
+    </div>
+
+    <div style="margin-bottom:1.5rem">
+      <label class="form-label-dark">Isi Pesan</label>
+      <textarea name="body" class="form-control form-control-dark" rows="10"
+                placeholder="Tulis pesan untuk {{ mhs.nama }}..." required>{{ form_data.body }}</textarea>
+    </div>
+
+    <div style="display:flex;gap:.5rem;justify-content:flex-end">
+      <a href="{{ url_for('mahasiswa_detail', id=mhs.id) }}" class="btn-ghost">Batal</a>
+      <button type="submit" class="btn-accent" {% if not configured %}disabled style="opacity:.5;cursor:not-allowed"{% endif %}>
+        <i class="bi bi-send me-1"></i> Kirim Email
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
