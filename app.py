@@ -34,8 +34,8 @@ db  = Database(os.environ.get("DB_PATH", "suzuran.db"))
 db.init_tables()
 db.seed_admin()          # Buat akun admin default jika belum ada
 
-# Diagnostik: apakah kredensial Gmail terbaca (tidak menampilkan isinya)
-print(f"[startup] Gmail email configured: {EmailSender().is_configured()}", flush=True)
+# Diagnostik: apakah konfigurasi email terbaca (tidak menampilkan isinya)
+print(f"[startup] Email (Brevo) configured: {EmailSender().is_configured()}", flush=True)
 
 
 # ─── Auth Decorator ───────────────────────────────────────────────────────────
