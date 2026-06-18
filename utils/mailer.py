@@ -12,6 +12,7 @@ Konfigurasi diambil dari environment variable:
 """
 
 import os
+import socket
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -37,6 +38,34 @@ class EmailSender:
         """True jika kredensial Gmail sudah tersedia di environment."""
         return bool(self.user and self.password)
 
+    # ── Koneksi SMTP (paksa IPv4) ───────────────────────────────────────────────
+    def _connect_smtp(self) -> smtplib.SMTP:
+        """
+        Membuka koneksi SMTP dengan MEMAKSA IPv4.
+
+        Sebagian platform hosting (mis. Railway) memberi container alamat IPv6
+        tanpa rute IPv6 yang valid. smtplib bisa mencoba alamat IPv6 Gmail lalu
+        gagal dengan 'Network is unreachable'. Maka kita resolve A-record (IPv4)
+        sendiri dan konek ke situ, namun tetap menyetel _host = hostname asli agar
+        verifikasi sertifikat TLS (SNI) saat starttls() tetap valid.
+        """
+        infos = socket.getaddrinfo(self.SMTP_HOST, self.SMTP_PORT,
+                                   socket.AF_INET, socket.SOCK_STREAM)
+        last_err = None
+        for family, socktype, proto, canonname, sockaddr in infos:
+            try:
+                server = smtplib.SMTP(timeout=20)
+                server._host = self.SMTP_HOST          # untuk SNI / verifikasi sertifikat
+                server.sock = socket.create_connection(sockaddr, timeout=20)
+                code, msg = server.getreply()
+                if code != 220:
+                    server.close()
+                    raise smtplib.SMTPConnectError(code, msg)
+                return server
+            except OSError as e:
+                last_err = e
+        raise last_err if last_err else OSError("Tidak ada alamat IPv4 untuk SMTP host.")
+
     # ── Kirim Email ────────────────────────────────────────────────────────────
     def send(self, to_email: str, subject: str, body: str) -> tuple[bool, str]:
         """
@@ -50,6 +79,7 @@ class EmailSender:
         if not to_email:
             return False, "Alamat email tujuan kosong."
 
+        server = None
         try:
             msg = MIMEMultipart()
             msg["From"]    = formataddr((self.sender_name, self.user))
@@ -57,11 +87,12 @@ class EmailSender:
             msg["Subject"] = subject
             msg.attach(MIMEText(body, "plain", "utf-8"))
 
-            with smtplib.SMTP(self.SMTP_HOST, self.SMTP_PORT, timeout=20) as server:
-                server.ehlo()
-                server.starttls()
-                server.login(self.user, self.password)
-                server.sendmail(self.user, [to_email], msg.as_string())
+            server = self._connect_smtp()
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+            server.login(self.user, self.password)
+            server.sendmail(self.user, [to_email], msg.as_string())
 
             return True, f"Email berhasil dikirim ke {to_email}."
 
@@ -70,5 +101,14 @@ class EmailSender:
                            "GMAIL_APP_PASSWORD adalah App Password (bukan password biasa).")
         except smtplib.SMTPException as e:
             return False, f"Gagal mengirim email (SMTP): {str(e)}"
+        except OSError as e:
+            return False, (f"Tidak bisa terhubung ke server Gmail: {str(e)}. "
+                           "Jika di hosting, kemungkinan port SMTP diblokir.")
         except Exception as e:
             return False, f"Terjadi kesalahan saat mengirim email: {str(e)}"
+        finally:
+            if server is not None:
+                try:
+                    server.quit()
+                except Exception:
+                    pass
