@@ -11,6 +11,14 @@ from functools import wraps
 import os, time, json, csv, io, re
 from datetime import datetime
 
+# Muat variabel dari file .env bila ada (untuk pengembangan lokal).
+# Di production (Railway), environment variable asli tetap diutamakan.
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 # Import modul internal (OOP Classes)
 from utils.database  import Database
 from utils.mahasiswa import Mahasiswa
@@ -25,6 +33,9 @@ app.secret_key = os.environ.get("SECRET_KEY", "suzuran-secret-2025")
 db  = Database(os.environ.get("DB_PATH", "suzuran.db"))
 db.init_tables()
 db.seed_admin()          # Buat akun admin default jika belum ada
+
+# Diagnostik: apakah kredensial Gmail terbaca (tidak menampilkan isinya)
+print(f"[startup] Gmail email configured: {EmailSender().is_configured()}", flush=True)
 
 
 # ─── Auth Decorator ───────────────────────────────────────────────────────────
